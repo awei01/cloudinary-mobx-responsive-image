@@ -1,7 +1,7 @@
 {
   "name": "cloudinary-mobx-responsive-image",
   "version": "0.0.0",
-  "description": "Reactive images served from Cloudinary",
+  "description": "Simple module that uses mobx to reactively resize the width of images.",
   "main": "index.js",
   "scripts": {
     "dev": "yarn run ava --watch",
