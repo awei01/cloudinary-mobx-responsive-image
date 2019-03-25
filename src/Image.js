@@ -4,6 +4,7 @@ import resize from './resize'
 
 const _DEFAULTS = {
   minWidth: 300,
+  maxWidth: Infinity,
   increment: 100
 }
 
@@ -16,7 +17,7 @@ export default function Image (configs, url) {
     url = configs
     configs = {}
   }
-  const { minWidth, increment, factory } = Object.assign({}, _DEFAULTS, configs)
+  const { minWidth, maxWidth, increment, factory } = Object.assign({}, _DEFAULTS, configs)
 
   const attrs = extractCloudinaryData(url)
   const width = factory ? factory.width : observable.box(null)
@@ -41,7 +42,7 @@ export default function Image (configs, url) {
 
   // function to generate the src url of image
   function _extractSrc () {
-    const value = _makeWidth({ minWidth, increment }, width.get())
+    const value = _makeWidth({ minWidth, maxWidth, increment }, width.get())
     const transformations = `w_${value}`
     return _interpolateSrc({ ...attrs, transformations })
   }
@@ -57,15 +58,16 @@ export default function Image (configs, url) {
 }
 
 function _makeWidth (options, width) {
-  const { minWidth, increment } = options
+  const { minWidth, maxWidth, increment } = options
   width = width || 0
   width = width < minWidth ? minWidth : width
+  width = width > maxWidth ? maxWidth : width
   const result = Math.ceil(width / increment) * options.increment
   return result
 }
 
-function _interpolateSrc ({ hostname, base, transformations, version, publicId }) {
+function _interpolateSrc ({ hostname, base, transforms, transformations, version, publicId }) {
   // cloudinary image url format:
   // https://res.cloudinary.com/<cloud_name>/<resource_type>/<type>/<transformations>/<version>/<public_id>.<format>
-  return `//${hostname}/${base}/${transformations}/${version ? version + '/' : ''}${publicId}`
+  return `//${hostname}/${base}/${transforms ? transforms + '/' : ''}${transformations}/${version ? version + '/' : ''}${publicId}`
 }

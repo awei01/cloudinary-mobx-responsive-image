@@ -22,7 +22,7 @@ class _TestApp extends React.Component {
     this._imagesFromFactory = [
       makeImage('http://res.cloudinary.com/demo/image/upload/sample.png'),
       makeImage('http://res.cloudinary.com/demo/image/upload/lady.gif'),
-      makeImage('http://res.cloudinary.com/demo/image/upload/brown_sheep.jpg')
+      makeImage('http://res.cloudinary.com/demo/image/upload/c_crop,w_300,h_300/v1429686295/sample.jpg')
     ]
     this._image = Image('http://res.cloudinary.com/demo/image/upload/woman.png')
   }
