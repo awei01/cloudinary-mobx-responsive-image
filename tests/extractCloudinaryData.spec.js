@@ -1,16 +1,16 @@
-import extractImageAttrs from '../src/extractImageAttrs'
+import extractCloudinaryData from '../src/extractCloudinaryData'
 import { images } from './fixtures'
 
 export default function (test) {
-  test(`extractImageAttrs()
+  test(`extractCloudinaryData()
       called with nothing returns nothing`, (t) => {
-    const result = extractImageAttrs()
+    const result = extractCloudinaryData()
     t.falsy(result)
   })
 
-  test(`extractImageAttrs()
+  test(`extractCloudinaryData()
       called with url returns object with [hostname, base, version, publicId] `, (t) => {
-    const simple = extractImageAttrs(images.simple)
+    const simple = extractCloudinaryData(images.simple)
     t.deepEqual(simple, {
       hostname: 'res.cloudinary.com',
       base: 'demo/image/upload',
@@ -18,7 +18,7 @@ export default function (test) {
       publicId: 'folder/sample.png'
     })
 
-    const versioned = extractImageAttrs(images.versioned)
+    const versioned = extractCloudinaryData(images.versioned)
     t.deepEqual(versioned, {
       hostname: 'res.cloudinary.com',
       base: 'demo/image/upload',

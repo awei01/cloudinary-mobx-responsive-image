@@ -1,6 +1,6 @@
 import test from 'ava'
-import extractImageAttrsSpec from './tests/extractImageAttrs.spec'
+import extractCloudinaryDataSpec from './tests/extractCloudinaryData.spec'
 import imageSpec from './tests/Image.spec'
 
-extractImageAttrsSpec(test)
+extractCloudinaryDataSpec(test)
 imageSpec(test)

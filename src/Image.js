@@ -1,5 +1,5 @@
-import { observable, action } from 'mobx'
-import extractImageAttrs from './extractImageAttrs'
+import { observable, action, autorun } from 'mobx'
+import extractCloudinaryData from './extractCloudinaryData'
 import resize from './resize'
 
 const _DEFAULTS = {
@@ -18,10 +18,29 @@ export default function Image (configs, url) {
   }
   const { minWidth, increment, factory } = Object.assign({}, _DEFAULTS, configs)
 
-  const attrs = extractImageAttrs(url)
+  const attrs = extractCloudinaryData(url)
   const width = factory ? factory.width : observable.box(null)
 
-  function src () {
+  // observable to track the src
+  const _src = observable.box(_extractSrc())
+  const _updateSrc = action(() => {
+    _src.set(_image.src)
+  })
+  // create an image to pre-load the image
+  const _image = new window.Image()
+  _image.onload = _updateSrc
+  _image.onerror = _updateSrc
+
+  // maybe capture disposer? and then allow image to kill the autorun?
+  autorun(() => {
+    const src = _extractSrc()
+    if (_image.src !== src) {
+      _image.src = src
+    }
+  })
+
+  // function to generate the src url of image
+  function _extractSrc () {
     const value = _makeWidth({ minWidth, increment }, width.get())
     const transformations = `w_${value}`
     return _interpolateSrc({ ...attrs, transformations })
@@ -33,7 +52,7 @@ export default function Image (configs, url) {
       ? () => {} // noop
       : action(resize.bind(null, width))
   })
-  Object.defineProperty(result, 'src', { get: src, enumerable: true })
+  Object.defineProperty(result, 'src', { get: () => { return _src.get() }, enumerable: true })
   return result
 }
 
