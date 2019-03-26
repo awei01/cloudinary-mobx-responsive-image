@@ -2,10 +2,11 @@
   "name": "cloudinary-mobx-responsive-image",
   "version": "0.0.0",
   "description": "Simple module that uses mobx to reactively resize the width of images.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "yarn run ava --watch",
-    "demo": "webpack-dev-server -d"
+    "demo": "webpack-dev-server -d",
+    "build": "rollup -c"
   },
   "keywords": [],
   "author": "",
@@ -33,18 +34,19 @@
     "prop-types": "^15.6.2",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
+    "rollup": "^1.7.3",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.9"
   },
   "dependencies": {
     "mobx": "^5.9.0",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "window-or-global": "^1.0.1"
   },
   "ava": {
     "require": [
-      "@babel/register",
-      "./test/helpers/setup-browser-env.js"
+      "@babel/register"
     ]
   }
 }

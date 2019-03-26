@@ -1,4 +1,5 @@
 import { observable, action, autorun } from 'mobx'
+import _window from 'window-or-global'
 import extractCloudinaryData from './extractCloudinaryData'
 import resize from './resize'
 
@@ -28,7 +29,7 @@ export default function Image (configs, url) {
     _src.set(_image.src)
   })
   // create an image to pre-load the image
-  const _image = new window.Image()
+  const _image = _makeDOMImage()
   _image.onload = _updateSrc
   _image.onerror = _updateSrc
 
@@ -70,4 +71,22 @@ function _interpolateSrc ({ hostname, base, transforms, transformations, version
   // cloudinary image url format:
   // https://res.cloudinary.com/<cloud_name>/<resource_type>/<type>/<transformations>/<version>/<public_id>.<format>
   return `//${hostname}/${base}/${transforms ? transforms + '/' : ''}${transformations}/${version ? version + '/' : ''}${publicId}`
+}
+
+function _makeDOMImage () {
+  const { Image } = _window
+  if (Image) { return new Image() }
+
+  // for non-browser environment isomorphic apps
+  let _src
+  const fakeImage = {
+    get src () {
+      return _src
+    },
+    set src (value) {
+      _src = value
+      this.onload && this.onload()
+    }
+  }
+  return fakeImage
 }
