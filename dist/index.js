@@ -5,6 +5,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var mobx = require('mobx');
+var _window = _interopDefault(require('window-or-global'));
 var url = _interopDefault(require('url'));
 
 // cloudinary image url format:
@@ -82,7 +83,7 @@ function Image (configs, url) {
     _src.set(_image.src);
   });
   // create an image to pre-load the image
-  const _image = new window.Image();
+  const _image = _makeDOMImage();
   _image.onload = _updateSrc;
   _image.onerror = _updateSrc;
 
@@ -124,6 +125,24 @@ function _interpolateSrc ({ hostname, base, transforms, transformations, version
   // cloudinary image url format:
   // https://res.cloudinary.com/<cloud_name>/<resource_type>/<type>/<transformations>/<version>/<public_id>.<format>
   return `//${hostname}/${base}/${transforms ? transforms + '/' : ''}${transformations}/${version ? version + '/' : ''}${publicId}`
+}
+
+function _makeDOMImage () {
+  const { Image } = _window;
+  if (Image) { return new Image() }
+
+  // for non-browser environment isomorphic apps
+  let _src;
+  const fakeImage = {
+    get src () {
+      return _src
+    },
+    set src (value) {
+      _src = value;
+      this.onload && this.onload();
+    }
+  };
+  return fakeImage
 }
 
 function Factory (configs) {
