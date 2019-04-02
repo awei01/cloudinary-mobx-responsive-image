@@ -92,33 +92,17 @@ function extractCloudinaryData (input) {
       rest = _path$split2.slice(4);
 
   var base = "".concat(cloudName, "/").concat(resourceType, "/").concat(type);
-  var transforms = null;
   var version = null;
-  var publicIdParts = []; // starting from the end of the remainder of path parts, start looking for the version
 
-  while (rest.length) {
-    var current = rest.pop();
-
-    if (!_RE_VERSION.test(current)) {
-      // this is not the version, so prepend it to the publicId
-      publicIdParts.unshift(current);
-    } else {
-      // we found the version
-      version = current;
-      break;
-    }
+  if (_RE_VERSION.test(rest[0])) {
+    // this has a version portion
+    version = rest.shift();
   }
 
-  if (rest.length) {
-    // these are transformations
-    transforms = rest.join('/');
-  }
-
-  var publicId = publicIdParts.join('/');
+  var publicId = rest.join('/');
   return {
     hostname: hostname,
     base: base,
-    transforms: transforms,
     version: version,
     publicId: publicId
   };
@@ -135,21 +119,29 @@ function resize (observable, value) {
   observable.set(value);
 }
 
+function stripSlashes (input) {
+  return input && input.replace(/^\/+/, '').replace(/\/+$/, '');
+}
+
 var _DEFAULTS = {
   minWidth: 300,
   maxWidth: Infinity,
   increment: 100
 };
-function Image(configs, url) {
+function Image(configs, url, transforms) {
   // shim vars
-  if (arguments.length === 1) {
-    if (_typeof(configs) === 'object') {
-      return Image.bind(null, configs);
-    }
+  if (arguments.length === 1 && _typeof(configs) === 'object') {
+    // we're making an Image function bound to configs
+    return Image.bind(null, configs);
+  }
 
+  if (_typeof(configs) !== 'object') {
+    transforms = url;
     url = configs;
     configs = {};
   }
+
+  transforms = stripSlashes(transforms);
 
   var _Object$assign = Object.assign({}, _DEFAULTS, configs),
       minWidth = _Object$assign.minWidth,
@@ -189,6 +181,7 @@ function Image(configs, url) {
 
     var transformations = "w_".concat(value);
     return _interpolateSrc(_objectSpread({}, attrs, {
+      transforms: transforms,
       transformations: transformations
     }));
   }
@@ -260,18 +253,24 @@ function Factory (configs) {
 
   var _Image = Image(configs);
 
+  var baseURL = stripSlashes(configs.baseURL);
   var _cache = {};
 
   var _width = mobx.observable.box(null);
 
   var _resize = mobx.action(resize.bind(null, _width));
 
-  function make(src) {
-    if (!_cache[src]) {
-      _cache[src] = _Image(src);
+  function make(src, transforms) {
+    src = stripSlashes(src);
+    transforms = stripSlashes(transforms);
+    var url = baseURL ? "".concat(baseURL, "/").concat(src) : src;
+    var key = "".concat(src, "@").concat(transforms);
+
+    if (!_cache[key]) {
+      _cache[key] = _Image(url, transforms);
     }
 
-    return _cache[src];
+    return _cache[key];
   }
 
   Object.defineProperty(make, 'width', {
