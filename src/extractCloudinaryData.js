@@ -9,33 +9,16 @@ export default function (input) {
   const { hostname, path } = url.parse(input)
   const [, cloudName, resourceType, type, ...rest] = path.split(/\//)
   const base = `${cloudName}/${resourceType}/${type}`
-
-  let transforms = null
   let version = null
-  const publicIdParts = []
-  // starting from the end of the remainder of path parts, start looking for the version
-  while (rest.length) {
-    const current = rest.pop()
-    if (!_RE_VERSION.test(current)) {
-      // this is not the version, so prepend it to the publicId
-      publicIdParts.unshift(current)
-    } else {
-      // we found the version
-      version = current
-      break
-    }
+  if (_RE_VERSION.test(rest[0])) {
+    // this has a version portion
+    version = rest.shift()
   }
-  if (rest.length) {
-    // these are transformations
-    transforms = rest.join('/')
-  }
-
-  const publicId = publicIdParts.join('/')
+  const publicId = rest.join('/')
 
   return {
     hostname,
     base,
-    transforms,
     version,
     publicId
   }

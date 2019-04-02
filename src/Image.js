@@ -2,6 +2,7 @@ import { observable, action, autorun } from 'mobx'
 import _window from 'window-or-global'
 import extractCloudinaryData from './extractCloudinaryData'
 import resize from './resize'
+import stripSlashes from './stripSlashes'
 
 const _DEFAULTS = {
   minWidth: 300,
@@ -9,15 +10,19 @@ const _DEFAULTS = {
   increment: 100
 }
 
-export default function Image (configs, url) {
+export default function Image (configs, url, transforms) {
   // shim vars
-  if (arguments.length === 1) {
-    if (typeof configs === 'object') {
-      return Image.bind(null, configs)
-    }
+  if (arguments.length === 1 && typeof configs === 'object') {
+    // we're making an Image function bound to configs
+    return Image.bind(null, configs)
+  }
+  if (typeof configs !== 'object') {
+    transforms = url
     url = configs
     configs = {}
   }
+  transforms = stripSlashes(transforms)
+
   const { minWidth, maxWidth, increment, factory } = Object.assign({}, _DEFAULTS, configs)
 
   const attrs = extractCloudinaryData(url)
@@ -45,7 +50,7 @@ export default function Image (configs, url) {
   function _extractSrc () {
     const value = _makeWidth({ minWidth, maxWidth, increment }, width.get())
     const transformations = `w_${value}`
-    return _interpolateSrc({ ...attrs, transformations })
+    return _interpolateSrc({ ...attrs, transforms, transformations })
   }
 
   const result = {}

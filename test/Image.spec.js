@@ -30,34 +30,31 @@ test(`Image()
 })
 
 test(`Image()
-    called with [image] returns { src, resize }
-    resizes to larger sizes, but when resized smaller keeps largest size`, (t) => {
-  const simple = Image(images.simple)
-  simple.resize(800)
-  t.is(simple.src, '//res.cloudinary.com/demo/image/upload/w_800/folder/sample.png')
-  simple.resize(799)
-  t.is(simple.src, '//res.cloudinary.com/demo/image/upload/w_800/folder/sample.png')
-  simple.resize(700)
-  t.is(simple.src, '//res.cloudinary.com/demo/image/upload/w_800/folder/sample.png')
-  simple.resize(699)
-  t.is(simple.src, '//res.cloudinary.com/demo/image/upload/w_800/folder/sample.png')
-})
-
-test(`Image()
-    having transforms
-    appends resize after base transforms`, (t) => {
-  const transformed = Image(images.transformed)
-  transformed.resize(800)
-  t.is(transformed.src, '//res.cloudinary.com/demo/image/upload/c_crop,g_auto:faces,h_500,w_500/w_800/v1429686295/folder/sample.png')
-})
-
-test(`Image()
-    called with [options] returns Image function configured options`, (t) => {
-  const myImage = Image({ minWidth: 200, increment: 200 })
-  const simple = myImage(images.simple)
+    called with [{ minWidth, maxWidth, increment }, image]
+    resizes based upon configs`, (t) => {
+  const simple = Image({ minWidth: 100, maxWidth: 200, increment: 50 }, images.simple)
+  t.is(simple.src, '//res.cloudinary.com/demo/image/upload/w_100/folder/sample.png')
+  simple.resize(101)
+  t.is(simple.src, '//res.cloudinary.com/demo/image/upload/w_150/folder/sample.png')
+  simple.resize(151)
   t.is(simple.src, '//res.cloudinary.com/demo/image/upload/w_200/folder/sample.png')
-  simple.resize(299)
-  t.is(simple.src, '//res.cloudinary.com/demo/image/upload/w_400/folder/sample.png')
-  simple.resize(801)
-  t.is(simple.src, '//res.cloudinary.com/demo/image/upload/w_1000/folder/sample.png')
+  simple.resize(201)
+  t.is(simple.src, '//res.cloudinary.com/demo/image/upload/w_200/folder/sample.png')
 })
+
+test(`Image()
+    called with [image, transforms]
+    resizes with transforms`, (t) => {
+  let img
+  img = Image(images.simple, 'transforms')
+  t.is(img.src, '//res.cloudinary.com/demo/image/upload/transforms/w_300/folder/sample.png')
+  img.resize(301)
+  t.is(img.src, '//res.cloudinary.com/demo/image/upload/transforms/w_400/folder/sample.png')
+
+  img = Image(images.simple, '//transforms')
+  t.is(img.src, '//res.cloudinary.com/demo/image/upload/transforms/w_300/folder/sample.png')
+
+  img = Image(images.simple, 'transforms//')
+  t.is(img.src, '//res.cloudinary.com/demo/image/upload/transforms/w_300/folder/sample.png')
+})
+
