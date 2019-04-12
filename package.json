@@ -2,6 +2,10 @@
   "name": "cloudinary-mobx-responsive-image",
   "version": "0.0.0",
   "description": "Simple module that uses mobx to reactively resize the width of images.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/awei01/cloudinary-mobx-responsive-image.git"
+  },
   "main": "dist/index.js",
   "scripts": {
     "dev": "yarn run ava --watch",
